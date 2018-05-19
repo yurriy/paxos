@@ -7,7 +7,7 @@ import sys
 import unittest
 
 from private import Environment
-from public import ClientProcess
+from public import ClientProcess, Process
 
 
 def await(env, *futures, **kwargs):
@@ -144,7 +144,10 @@ def load_impl(path):
     module = importlib.import_module(name)
     if klass not in dir(module):
         raise RuntimeError("module %s is missing class %s" % (module, klass))
-    return module.__dict__[klass]
+    cls = module.__dict__[klass]
+    if not issubclass(cls, Process):
+        raise RuntimeError("class %s must be derived from Process" % klass)
+    return cls
 
 
 def main():
