@@ -7,12 +7,12 @@ class Learner(object):
         self.process_count = process_count
         self.accepted = defaultdict(set)
         self.chosen_value = None
-        self.round_id = None
+        self.proposed_round = None
         self.requests_queue = []
 
-    def on_learn(self, acceptor_id, round_id, value):
+    def on_learn(self, acceptor_id, round_id, proposed_round, value):
         # type: (int, str) -> None
         self.accepted[round_id].add((acceptor_id, value))
         if len(self.accepted[round_id]) >= self.process_count / 2:
+            self.proposed_round = proposed_round
             self.chosen_value = value
-            self.round_id = round_id

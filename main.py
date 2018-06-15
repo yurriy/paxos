@@ -12,7 +12,7 @@ from public import ClientProcess, Process
 
 def await(env, *futures, **kwargs):
     start_time = env.time
-    time_limit = kwargs.pop("time_limit", 100)
+    time_limit = kwargs.pop("time_limit", 200)
     while not all(future.has_value for future in futures) and env.time - start_time < time_limit:
         env.step_randomly()
     if not any(future.has_value for future in futures):

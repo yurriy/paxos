@@ -11,9 +11,10 @@ class Propose(object):
 
 
 class Accept(object):
-    def __init__(self, acceptor_id, round_id, value):
+    def __init__(self, acceptor_id, round_id, proposed_round, value):
         self.acceptor_id = acceptor_id
         self.round_id = round_id
+        self.proposed_round = proposed_round
         self.value = value
 
 
@@ -44,6 +45,7 @@ class Proposer(object):
                 if latest_round < voted_round:
                     latest_round = voted_round
                     self.current_value = voted_value
+            proposed_round = latest_round if latest_round != -1 else self.current_round
             for acceptor_id in self.prepared.keys():
-                yield Accept(acceptor_id, self.current_round, self.current_value)
+                yield Accept(acceptor_id, self.current_round, proposed_round, self.current_value)
             self.prepared = dict()

@@ -10,9 +10,10 @@ class Prepared(object):
 
 
 class Learn(object):
-    def __init__(self, learner_id, round_id, value):
+    def __init__(self, learner_id, round_id, proposed_round, value):
         self.learner_id = learner_id
         self.round_id = round_id
+        self.proposed_round = proposed_round
         self.value = value
 
 
@@ -30,11 +31,11 @@ class Acceptor(object):
             self.promised_round = round_id
             return Prepared(proposer_id, round_id, self.voted_round, self.voted_value)
 
-    def on_accept(self, round_id, value):
+    def on_accept(self, round_id, proposed_round, value):
         # type: (int, str) -> iter[Learn]
         if round_id < self.promised_round:
             return
         self.voted_round = round_id
         self.voted_value = value
         for learner_id in range(1, self.process_count):
-            yield Learn(learner_id, round_id, value)
+            yield Learn(learner_id, round_id, proposed_round, value)
