@@ -28,9 +28,9 @@ class PaxosProcess(Process):
     def __init__(self, pid):
         super(PaxosProcess, self).__init__(pid)
         self.process_count = 0
-        self.proposer = defaultdict(lambda: Proposer(self.process_count))
-        self.acceptor = defaultdict(lambda: Acceptor(self.process_count))
-        self.learner = defaultdict(lambda: Learner(self.process_count))
+        self.proposers = defaultdict(lambda: Proposer(self.process_count))
+        self.acceptors = defaultdict(lambda: Acceptor(self.process_count))
+        self.learners = defaultdict(lambda: Learner(self.process_count))
         self.client_requests = []
         self.internal_requests = []
 
@@ -57,7 +57,7 @@ class PaxosProcess(Process):
 
     def process_client_request(self, ctx, sender, msg):
         reqid = msg[CP.ID]
-        learner = self.learner[msg[CP.KEY]]
+        learner = self.learners[msg[CP.KEY]]
         if learner.chosen_value is not None:
             answer = {CP.ID: reqid, CP.VALUE: learner.chosen_value}
             if msg[CP.METHOD] == 'set':
@@ -68,7 +68,7 @@ class PaxosProcess(Process):
 
     def process_internal_request(self, ctx, sender, key, msg):
         # type: (Context, int, object) -> None
-        proposer, acceptor, learner = self.proposer[key], self.acceptor[key], self.learner[key]
+        proposer, acceptor, learner = self.proposers[key], self.acceptors[key], self.learners[key]
         if isinstance(msg, Propose):
             for prepare in proposer.on_propose(msg.round_id, msg.value):
                 self.send(ctx, prepare.acceptor_id, serialize(prepare, key))
